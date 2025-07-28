@@ -1,18 +1,14 @@
-import { Variables, Env, Hono } from "hono"
+import { Hono } from "hono"
 import { logger } from "hono/logger"
 import { prettyJSON } from "hono/pretty-json"
 import { HTTPException } from "hono/http-exception"
 import 'dotenv/config'
 
 import { authRoutes } from "./modules/auth/auth.routes"
-import { userRoutes } from "./modules/users/users.route"
+import { userRoutes } from "./modules/users/users.routes"
+import { pollRoutes } from "./modules/polls/polls.routes"
 
-type Bindings = {
-    DATABASE_URL: string;
-    JWT_SECRET: string;
-};
-
-const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
+const app = new Hono()
 
 app.use(logger())
 app.use(prettyJSON())
@@ -40,5 +36,6 @@ app.get('/', (c) => {
 
 app.route('/auth', authRoutes)
 app.route('/users', userRoutes)
+app.route('/polls', pollRoutes)
 
 export default app

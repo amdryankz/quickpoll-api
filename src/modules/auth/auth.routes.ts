@@ -1,10 +1,10 @@
-import { Env, Hono, Variables } from "hono";
+import { Hono } from "hono";
 import { AuthService } from "./auth.service";
 import { zValidator } from "@hono/zod-validator"
 import { loginSchema, registerSchema } from "./auth.schema";
 
 const authService = new AuthService()
-export const authRoutes = new Hono<{ Env: Env; Variables: Variables }>()
+export const authRoutes = new Hono()
 
 authRoutes.post('/register', zValidator('json', registerSchema), async (c) => {
     const data = c.req.valid('json')

@@ -29,7 +29,7 @@ export class AuthService {
             email: data.email,
             hashedPassword: hashedPassword,
             name: data.name || null,
-            role: 'user'
+            role: data.role
         }).returning({
             id: users.id,
             email: users.email,

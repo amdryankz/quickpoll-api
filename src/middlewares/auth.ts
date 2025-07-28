@@ -18,8 +18,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
 
     try {
         const payload = await verify(token, JWT_SECRET)
-        c.set('userId', payload.id)
-        c.set('userRole', payload.role)
+        c.set('jwtPayload', payload)
         await next()
     } catch (err) {
         console.error('JWT Verification Error: ', err)
@@ -31,13 +30,14 @@ type Role = 'admin' | 'user'
 
 export const authorize = (requiredRole: Role) => {
     return async (c: Context, next: Next) => {
-        const userRole = c.get('userRole')
+        const jwtPayload = c.get('jwtPayload')
+        const userRole = jwtPayload.role
 
         if (!userRole) {
             throw new HTTPException(401, { message: 'Unauthorized: User role not found.' })
         }
 
-        if (requiredRole === 'admin' && userRole !== 'user') {
+        if (requiredRole === 'admin' && userRole !== 'admin') {
             throw new HTTPException(403, { message: 'Forbidden: Admin access required.' })
         }
 
