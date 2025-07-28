@@ -67,7 +67,14 @@ pollRoutes.patch('/:id/status',
 
 pollRoutes.get('/',
     async (c) => {
-        const polls = await pollsService.getActivePolls()
+        let polls
+        const jwtPayload = c.get('jwtPayload')
+        const userRole = jwtPayload.role
+        if (userRole === 'admin') {
+            polls = await pollsService.getPolls()
+        } else {
+            polls = await pollsService.getActivePolls()
+        }
         return c.json({
             success: true,
             polls
@@ -90,7 +97,8 @@ pollRoutes.post('/:id/vote',
     zValidator('json', voteSchema),
     async (c) => {
         const pollId = Number(c.req.param('id'))
-        const userId = c.get('jwtPayload')
+        const jwtPayload = c.get('jwtPayload')
+        const userId = jwtPayload.id
         const { optionId } = c.req.valid('json')
         const result = await pollsService.submitVote(userId, pollId, optionId)
         return c.json({

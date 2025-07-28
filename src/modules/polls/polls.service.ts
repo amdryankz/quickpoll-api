@@ -28,6 +28,42 @@ export class PollsService {
         }
     }
 
+    async getPolls() {
+        const pollsWithInfo = await db.query.polls.findMany({
+            with: {
+                options: true,
+                user: {
+                    columns: {
+                        id: true,
+                        email: true,
+                        name: true
+                    }
+                }
+            },
+            orderBy: polls.createdAt
+        })
+
+        const pollsWithCounts = await Promise.all(pollsWithInfo.map(async (poll) => {
+            const optionCounts = await db
+                .select({
+                    optionId: votes.optionId,
+                    count: count(votes.optionId).as('count')
+                })
+                .from(votes)
+                .where(eq(votes.pollId, poll.id))
+                .groupBy(votes.optionId)
+
+            const optionWithCounts = poll.options.map(option => ({
+                ...option,
+                votes: optionCounts.find(oc => oc.optionId === option.id)?.count || 0
+            }))
+
+            return { ...poll, options: optionWithCounts }
+        }))
+
+        return pollsWithCounts
+    }
+
     async getActivePolls() {
         const pollsWithInfo = await db.query.polls.findMany({
             where: eq(polls.isActive, true),
@@ -154,7 +190,7 @@ export class PollsService {
             throw new HTTPException(409, { message: 'You have already voted on this poll.' })
         }
 
-        const newVote = db.insert(votes).values({
+        const newVote = await db.insert(votes).values({
             userId: userId,
             optionId: optionId,
             pollId: pollId
