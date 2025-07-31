@@ -1,7 +1,7 @@
 import { HTTPException } from "hono/http-exception";
 import { db } from "../../db";
 import { options, polls, votes } from "../../db/schema";
-import { CreatePollWithOption } from "./polls.schema";
+import { CreatePollWithOption, UpdatePollWithOption } from "./polls.schema";
 import { and, count, eq } from "drizzle-orm";
 
 export class PollsService {
@@ -134,10 +134,23 @@ export class PollsService {
             votes: optionCounts.find(oc => oc.optionId === option.id)?.count || 0
         }))
 
-        return { ...pollWithInfo, option: optionWithCounts }
+        return { ...pollWithInfo, options: optionWithCounts }
     }
 
-    async updatePoll(pollId: number, data: Partial<typeof polls.$inferInsert>) {
+    async updatePoll(pollId: number, data: UpdatePollWithOption) {
+        const votesCountResult = await db
+            .select({
+                totalVotes: count(votes.optionId)
+            })
+            .from(votes)
+            .where(eq(votes.pollId, pollId));
+
+        const totalVotes = votesCountResult[0]?.totalVotes || 0;
+
+        if (totalVotes > 0) {
+            throw new HTTPException(403, { message: 'Poll cannot be updated after votes have been cast.' });
+        }
+
         const [updatedPoll] = await db.update(polls)
             .set({
                 question: data.question,
@@ -152,7 +165,35 @@ export class PollsService {
             throw new HTTPException(404, { message: 'Poll not found or no changes made' })
         }
 
-        return updatedPoll
+        await db.delete(options).where(eq(options.pollId, pollId))
+
+        const optionToInsert = data.options.map(opt => ({
+            pollId: updatedPoll.id,
+            text: opt.text
+        }))
+
+        const newOptions = await db.insert(options).values(optionToInsert).returning()
+
+        return {
+            ...updatedPoll,
+            options: newOptions
+        }
+    }
+
+    async updateStatusPoll(pollId: number, data: { isActive: boolean }) {
+        const [updatedStatusPoll] = await db.update(polls)
+            .set({
+                isActive: data.isActive,
+                updatedAt: new Date()
+            })
+            .where(eq(polls.id, pollId))
+            .returning()
+
+        if (!updatedStatusPoll) {
+            throw new HTTPException(404, { message: 'Poll not found or no changes made' })
+        }
+
+        return updatedStatusPoll
     }
 
     async deletePoll(pollId: number) {

@@ -1,14 +1,15 @@
-import { Hono } from "hono"
 import { logger } from "hono/logger"
 import { prettyJSON } from "hono/pretty-json"
 import { HTTPException } from "hono/http-exception"
+import { OpenAPIHono } from "@hono/zod-openapi"
 import 'dotenv/config'
 
 import { authRoutes } from "./modules/auth/auth.routes"
 import { userRoutes } from "./modules/users/users.routes"
 import { pollRoutes } from "./modules/polls/polls.routes"
+import { swaggerUI } from "@hono/swagger-ui"
 
-const app = new Hono()
+const app = new OpenAPIHono()
 
 app.use(logger())
 app.use(prettyJSON())
@@ -37,5 +38,25 @@ app.get('/', (c) => {
 app.route('/auth', authRoutes)
 app.route('/users', userRoutes)
 app.route('/polls', pollRoutes)
+
+app.openAPIRegistry.registerComponent('securitySchemes', 'Bearer', {
+    type: 'http',
+    scheme: 'bearer'
+})
+
+app.doc('/openapi', {
+    openapi: '3.0.0',
+    info: {
+        version: '1.0.0',
+        title: 'QuickPoll API',
+        description: 'API for creating and participating in polls with user authentication and roles.'
+    },
+    servers: [{
+        url: 'http://localhost:3000',
+        description: 'Local Development Server'
+    }],
+})
+
+app.get('/docs', swaggerUI({ url: '/openapi' }))
 
 export default app

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { userRolesEnum } from "../../db/schema";
 
 export const registerSchema = z.object({
     email: z.email('Invalid email address'),
@@ -15,3 +14,21 @@ export const loginSchema = z.object({
 
 export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>
+
+// OpenAPI response
+export const AuthSuccessResponseSchema = z.object({
+    success: z.boolean(),
+    user: z.object({
+        id: z.number().openapi({ example: 1 }),
+        email: z.email().openapi({ example: 'test@example.com' }),
+        name: z.string().nullable().optional().openapi({ example: 'Test' }),
+        role: z.enum(['admin', 'user']).openapi({ example: 'user' })
+    }),
+    token: z.string().openapi({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }),
+})
+
+export const ErrorResponseSchema = z.object({
+    success: z.boolean().openapi({ example: false }),
+    message: z.string().openapi({ example: 'Unauthorized' }),
+    details: z.string().nullable().optional().openapi({ example: 'Invalid credentials' })
+})
