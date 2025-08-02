@@ -1,4 +1,3 @@
-import { logger } from "hono/logger"
 import { prettyJSON } from "hono/pretty-json"
 import { HTTPException } from "hono/http-exception"
 import { OpenAPIHono } from "@hono/zod-openapi"
@@ -8,10 +7,11 @@ import { authRoutes } from "./modules/auth/auth.routes"
 import { userRoutes } from "./modules/users/users.routes"
 import { pollRoutes } from "./modules/polls/polls.routes"
 import { swaggerUI } from "@hono/swagger-ui"
+import { pinoLogger } from "./middlewares/logger"
 
 const app = new OpenAPIHono()
 
-app.use(logger())
+app.use(pinoLogger)
 app.use(prettyJSON())
 
 app.onError((err, c) => {
