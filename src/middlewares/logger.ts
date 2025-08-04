@@ -19,6 +19,6 @@ export const pinoLogger: MiddlewareHandler = async (c, next) => {
     } else if (c.res.status >= 400) {
         logger.warn(logObject, 'Client Error')
     } else {
-        logger.info('Request Handled')
+        logger.info(logObject, 'Request Handled')
     }
 }

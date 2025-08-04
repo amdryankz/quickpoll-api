@@ -41,7 +41,7 @@ This project serves as a comprehensive demonstration of a robust backend archite
 * **Database:** [PostgreSQL](https://www.postgresql.org/)
 * **ORM:** [Drizzle ORM](https://drizzle.team/) & [Drizzle Kit](https://orm.drizzle.team/kit/overview)
 * **Validation:** [Zod](https://zod.dev/)
-* **Authentication:** [JWT (JSON Web Tokens)](https://jwt.io/) via `hono/jwt`
+* **Authentication:** [JWT (JSON Web Tokens)](https://jwt.io/) 
 * **API Documentation:** [OpenAPI](https://swagger.io/specification/) via `@hono/zod-openapi` & [Swagger UI](https://swagger.io/tools/swagger-ui/) via `hono-swagger-ui`
 * **Logging:** [Pino](https://getpino.io/) & [Pino-Pretty](https://github.com/pinojs/pino-pretty)
 * **Testing:** [Vitest](https://vitest.dev/) & [Supertest](https://github.com/visionmedia/supertest)

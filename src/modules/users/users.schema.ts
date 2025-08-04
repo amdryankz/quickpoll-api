@@ -7,7 +7,7 @@ export const GetUserSuccessResponseSchema = z.object({
         name: z.string().nullable().optional().openapi({ example: 'Test' }),
         email: z.email().openapi({ example: 'test@example.com' }),
         role: z.enum(['admin', 'user']).openapi({ example: 'user' }),
-        createdAt: z.date().openapi({ example: new Date() })
+        createdAt: z.date().openapi({ example: '2023-10-27T10:00:00.000Z' })
     })
 })
 

@@ -28,7 +28,7 @@ export class PollsService {
         }
     }
 
-    async getPolls() {
+    async getAllPolls() {
         const pollsWithInfo = await db.query.polls.findMany({
             with: {
                 options: true,

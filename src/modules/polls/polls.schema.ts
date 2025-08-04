@@ -13,7 +13,7 @@ export const insertOptionSchema = createInsertSchema(options, {
     text: (schema) => schema.min(1, 'Option text cannot be empty').max(255, 'Option text too long')
 }).omit({ id: true, pollId: true })
 
-export const selectOptionSchema = createInsertSchema(options)
+export const selectOptionSchema = createSelectSchema(options)
 
 export const createPollWithOptionSchema = z.object({
     question: insertPollSchema.shape.question,
@@ -22,9 +22,9 @@ export const createPollWithOptionSchema = z.object({
 })
 
 export const updatePollSchema = z.object({
-    question: insertPollSchema.shape.question,
-    description: insertPollSchema.shape.description,
-    isActive: insertPollSchema.shape.isActive,
+    question: insertPollSchema.shape.question.optional(),
+    description: insertPollSchema.shape.description.optional(),
+    isActive: insertPollSchema.shape.isActive.optional(),
     options: z.array(insertOptionSchema).min(2, 'A poll must have at least 2 options').max(10, 'A poll cannot have more than 10 options')
 })
 

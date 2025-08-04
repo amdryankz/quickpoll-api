@@ -329,15 +329,15 @@ const getAllPollsRoute = createRoute({
 })
 
 pollRoutes.openapi(getAllPollsRoute, async (c) => {
-    let polls
+    let pollsResult
     const jwtPayload = c.get('jwtPayload')
     const userRole = jwtPayload.role
     if (userRole === 'admin') {
-        polls = await pollsService.getPolls()
+        pollsResult = await pollsService.getAllPolls()
     } else {
-        polls = await pollsService.getActivePolls()
+        pollsResult = await pollsService.getActivePolls()
     }
-    return c.json({ success: true, polls }, 200)
+    return c.json({ success: true, polls: pollsResult }, 200)
 })
 
 const getPollByIdRoute = createRoute({
