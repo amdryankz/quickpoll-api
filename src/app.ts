@@ -1,6 +1,8 @@
 import { prettyJSON } from "hono/pretty-json"
 import { HTTPException } from "hono/http-exception"
 import { OpenAPIHono } from "@hono/zod-openapi"
+import { cors } from 'hono/cors'
+import { rateLimiter } from 'hono-rate-limiter'
 import 'dotenv/config'
 
 import { authRoutes } from "./modules/auth/auth.routes"
@@ -11,6 +13,30 @@ import { pinoLogger } from "./middlewares/logger"
 
 const app = new OpenAPIHono()
 
+app.use(cors({
+    origin: ['*'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    allowMethods: ['POST', 'GET', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    maxAge: 600,
+    credentials: true
+}))
+
+const apiLimiter = rateLimiter({
+    windowMs: 1 * 60 * 1000,
+    limit: 100,
+    standardHeaders: 'draft-6',
+    keyGenerator: (c) => {
+        const forwardedFor = c.req.header('x-forwarded-for') ?? ''
+        const ip = forwardedFor.split(',')[0].trim()
+        return ip || 'unknown'
+    },
+    handler: (c) => c.json({
+        message: 'Too many request, please try again later.',
+        success: false
+    }, 429)
+})
+
+app.use(apiLimiter)
 app.use(pinoLogger)
 app.use(prettyJSON())
 
