@@ -58,7 +58,7 @@ Follow these steps to get a local copy of the QuickPoll API up and running.
 
 * **Bun:** Ensure Bun is installed on your system.
     ```bash
-    curl -fsSL [https://bun.sh/install](https://bun.sh/install) | bash
+    curl -fsSL https://bun.sh/install | bash
     ```
 * **PostgreSQL:** You need a running PostgreSQL instance.
     * **Docker (Recommended for local dev):**
@@ -73,7 +73,7 @@ Follow these steps to get a local copy of the QuickPoll API up and running.
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/YOUR_GITHUB_USERNAME/quickpoll-api.git](https://github.com/YOUR_GITHUB_USERNAME/quickpoll-api.git)
+    git clone https://github.com/YOUR_GITHUB_USERNAME/quickpoll-api.git
     cd quickpoll-api
     ```
 
@@ -89,7 +89,7 @@ Follow these steps to get a local copy of the QuickPoll API up and running.
     cp .env.example .env
     ```
     Open `.env` and fill it out:
-    ```env
+    ```bash
     # .env
     DATABASE_URL="postgresql://quickpoll_user:mysecretpassword@localhost:5432/quickpoll_dev_db"
     JWT_SECRET="YOUR_VERY_STRONG_RANDOM_SECRET_KEY_HERE" # Use a long, random string!
@@ -108,7 +108,18 @@ Follow these steps to get a local copy of the QuickPoll API up and running.
     # Apply the pending migrations to your database
     bun run db:migrate
     ```
-2.  **(Optional) Drizzle Studio:**
+
+2.  **Setup Test Database:**
+    Ensure your test PostgreSQL database (e.g., `quickpoll_test`) is running. The test environment will automatically use the `DATABASE_URL` from your `.env.test` file.
+    ```bash
+    # .env.test
+    DATABASE_URL="postgresql://quickpoll_user:mysecretpassword@localhost:5432/quickpoll_test_db"
+
+    # Apply migrations to the test database
+    bun run db:migrate
+    ```
+
+3.  **(Optional) Drizzle Studio:**
     You can inspect your database schema and data using Drizzle Studio:
     ```bash
     bun run db:studio
